@@ -89,6 +89,7 @@ void detectVendor(char* vendor) {
 
 // as the name suggests, look for a void* keyboard assembly wrapper
 extern void keyboard_asm_wrap(void);
+extern void common_asm_wrap(void);
 
 __attribute__((noreturn))
 void c_key_handle(void) {
@@ -141,7 +142,8 @@ void kernel_main(void)
 
 	terminal_writestring("Installing key handler and bitmasking IRQ lines..\n");
 	
-	idt_set_descriptor(32, keyboard_asm_wrap, 0x8E);
+	idt_set_descriptor(33, keyboard_asm_wrap, 0x8E);
+	idt_set_descriptor(32, common_asm_wrap, 0x8E);
 
 	for (int i = 0; i < 16; i++) {
 		IRQ_set_mask(i);
