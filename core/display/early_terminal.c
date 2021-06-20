@@ -15,9 +15,6 @@ uint16_t vga_entry(unsigned char uc, uint8_t color)
 	return (uint16_t) uc | (uint16_t) color << 8;
 }
 
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
- 
 struct TerminalState TERMINAL_STATE;
  
 void terminal_initialize(void) 
@@ -47,9 +44,12 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
  
 void terminal_putchar(char c) 
 {
-    if (c == "\n") {
+    if (c == '\n') {
         // go down a row
         TERMINAL_STATE.terminal_row++;
+        TERMINAL_STATE.terminal_column = 0;
+
+        return;
     } else {
 	    terminal_putentryat(c, TERMINAL_STATE.terminal_color, TERMINAL_STATE.terminal_column, TERMINAL_STATE.terminal_row);
 	}

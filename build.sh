@@ -6,9 +6,10 @@ export CD_NAME_PO=puffyos.iso
 
 # Create the boot object (and other assembler files)
 
-for FILE in $(find ./ -type f -iregex ".*\.o")
+for FILE in $(find ./ -type f -iregex ".*\.s")
 do
-    i686-elf-as $FILE -o core/$FILE
+    FILENAME=$(basename $FILE .s)
+    i686-elf-as $FILE -o core/$FILENAME.o
 done 
 
 # Compile the kernel (and other files)
@@ -17,7 +18,7 @@ i686-elf-gcc -I core/include -g -c $(find core/ -type f -iregex ".*\.c") -std=gn
 
  
 # finally, link
-i686-elf-gcc -T core/linker.ld -o $OS_NAME_PO -ffreestanding -O2 -nostdlib core/*.o -lgcc
+i686-elf-gcc -T core/linker.ld -o $OS_NAME_PO -ffreestanding -O2 -nostdlib core/*.o *.o -lgcc
 
 # Create a cdrom image of our operating system AND grub
 
