@@ -85,13 +85,6 @@ void terminal_writestring(const char* data)
 
 void terminal_error(const char* data) {
     uint8_t original = TERMINAL_STATE.terminal_color;
-
-    terminal_putchar('[');
-    terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    terminal_putchar('-');
-    terminal_setcolor(original);
-    terminal_putchar(']');
-    terminal_putchar(' ');
     
     terminal_setcolor(vga_entry_color(VGA_COLOR_RED, VGA_COLOR_WHITE));
 

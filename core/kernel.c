@@ -147,7 +147,7 @@ void kernel_main(void)
 		IRQ_set_mask(i);
 	}
 
-	//IRQ_clear_mask(1);
+	IRQ_clear_mask(1);
 	
 	idt_init();
 	terminal_writestring("Installed IDT!\n");
