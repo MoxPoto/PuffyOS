@@ -4,6 +4,15 @@
 export OS_NAME_PO=puffyos.bin
 export CD_NAME_PO=puffyos.iso
 
+# Create a backup ALWAYS
+
+rm -rf ~/puffy_os_backup
+mkdir ~/puffy_os_backup
+
+cp -rf ./ ~/puffy_os_backup
+
+echo "Backup of project done, building.."
+
 # Create the boot object (and other assembler files)
 
 for FILE in $(find ./ -type f -iregex ".*\.s")
