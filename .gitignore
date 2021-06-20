@@ -1,0 +1,6 @@
+# Remove build output
+# but.. theres really not much else to ignore
+
+isodir/*
+built_os/*
+
