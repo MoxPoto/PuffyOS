@@ -91,10 +91,11 @@ void detectVendor(char* vendor) {
 extern void keyboard_asm_wrap(void);
 extern void common_asm_wrap(void);
 
-__attribute__((noreturn))
 void c_key_handle(void) {
 	terminal_writestring("Detected a key press!!");
-	PIC_sendEOI(2);
+	PIC_sendEOI(1);
+	
+	return;
 }
 
 void kernel_crash(void) {
@@ -107,6 +108,8 @@ void kernel_crash(void) {
 	terminal_error("\nKERNEL PANIC!\n");
 	terminal_error("STOP CODE IS: ");
 	terminal_error(stopCodeStr);
+
+
 	for (;;) {
 		asm("hlt");
 	}
