@@ -92,7 +92,11 @@ extern void keyboard_asm_wrap(void);
 extern void common_asm_wrap(void);
 
 void c_key_handle(void) {
-	terminal_writestring("Detected a key press!!");
+	terminal_writestring("Detected a key press!!\n");
+	unsigned char scan_code = inportb(0x60);
+	// fun fact: the keyboard doesnt continue sending any more interrupts until you read the scan
+	// code
+	
 	PIC_sendEOI(1);
 	
 	return;
