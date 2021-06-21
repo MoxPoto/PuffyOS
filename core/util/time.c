@@ -42,13 +42,6 @@ void connect_time_event(TimeEventFunction func) {
 
 float last_time = 0.f;
 
-void test_handler(void) {
-    if ((kernel_time - last_time) >= 1.f) {
-        last_time = kernel_time;
-
-        terminal_writestring("A second has passed\n");
-    }
-}
 
 void initialize_time(void) {
     outportb(0x70, 0x8B);		// select register B, and disable NMI
@@ -56,7 +49,6 @@ void initialize_time(void) {
     outportb(0x70, 0x8B);		// set the index again (a read will reset the index to register D)
     outportb(0x71, prev | 0x40);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
 
-    connect_time_event(test_handler);
 }
 
 float get_kernel_time(void) {

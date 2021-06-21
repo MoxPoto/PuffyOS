@@ -11,6 +11,7 @@
 #include <vendor/multiboot.h>
 #include <drivers/video_driver.h>
 #include <time.h>
+#include <memory_util.h>
 
 // Create our IDT
 __attribute__((aligned(0x10))) 
@@ -149,9 +150,8 @@ void kernel_main(void)
 
 	terminal_writestring(vendor);
 
-	
-
-	
+	initialize_memory(grubInfo);
+	terminal_writestring("Mapped all memory!\n");	
 
 	terminal_writestring("Creating IDT..\n");
 
@@ -174,7 +174,7 @@ void kernel_main(void)
 	IRQ_clear_mask(2); // Enable cascade bit to let the 2nd pic run
 	IRQ_clear_mask(8);
 
-	
+
 	initialize_time();
 
 	idt_init();
