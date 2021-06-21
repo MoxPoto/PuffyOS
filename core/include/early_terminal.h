@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <drivers/video_driver.h>
 
 enum vga_color {
 	VGA_COLOR_BLACK = 0,
@@ -33,13 +34,13 @@ extern uint16_t vga_entry(unsigned char uc, uint8_t color);
 struct TerminalState {
     size_t terminal_row;
     size_t terminal_column;
-    uint8_t terminal_color;
+    struct Color3 terminal_color;
     uint16_t* terminal_buffer;
 };
 
 extern struct TerminalState TERMINAL_STATE;
 extern void terminal_initialize(void);
-extern void terminal_setcolor(uint8_t color);
+extern void terminal_setcolor(struct Color3 color);
 extern void terminal_putchar(char c);
 extern void terminal_write(const char* data, size_t size);
 

@@ -35,11 +35,14 @@ void video_initialize(multiboot_info_t* grubInfo) {
 struct FontSpaceInfo video_drawchar(uint32_t oX, uint32_t oY, struct Color3 col, char target) {
     struct FontSpaceInfo spacing;
 
-    
+    if (target == ' ') {
+        spacing.width = 8;
+        spacing.height = 8;
+    }
 
     for (uint8_t y = 0; y < 8; y++) {
         char row = font8x8_basic[target][y];
-        
+
         for (uint8_t x = 0; x < 8; x++) {
             if (row & (1 << x)) {
                 // pixel is active in here
@@ -48,11 +51,11 @@ struct FontSpaceInfo video_drawchar(uint32_t oX, uint32_t oY, struct Color3 col,
                 uint32_t newY = (uint32_t)y + oY;
 
                 if (spacing.width < x) {
-                    spacing.width = x;
+                    spacing.width = (int)x;
                 }
 
                 if (spacing.height < y) {
-                    spacing.height = y;
+                    spacing.height = (int)y;
                 }
 
                 uint32_t index = getPixelLocation(newX, newY);
@@ -61,4 +64,6 @@ struct FontSpaceInfo video_drawchar(uint32_t oX, uint32_t oY, struct Color3 col,
             }
         }
     }
+
+    return spacing;
 }

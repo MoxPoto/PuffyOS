@@ -21,36 +21,44 @@ void terminal_initialize(void)
 {
 	TERMINAL_STATE.terminal_row = 0;
 	TERMINAL_STATE.terminal_column = 0;
-	TERMINAL_STATE.terminal_color = vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+	TERMINAL_STATE.terminal_color.r = 255;
+    TERMINAL_STATE.terminal_color.g = 255;
+    TERMINAL_STATE.terminal_color.b = 255;
 
 }
  
-void terminal_setcolor(uint8_t color) 
+void terminal_setcolor(struct Color3 color) 
 {
 	TERMINAL_STATE.terminal_color = color;
 }
  
-void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) 
+static struct FontSpaceInfo terminal_putentryat(char c, size_t x, size_t y) 
 {
-	const size_t index = y * VGA_WIDTH + x;
-	TERMINAL_STATE.terminal_buffer[index] = vga_entry(c, color);
+	struct FontSpaceInfo result = video_drawchar((uint32_t)x, (uint32_t)y, TERMINAL_STATE.terminal_color, c);
+    return result;
 }
  
 void terminal_putchar(char c) 
 {
     if (c == '\n') {
         // go down a row
-        TERMINAL_STATE.terminal_row++;
+        TERMINAL_STATE.terminal_row += 9;
         TERMINAL_STATE.terminal_column = 0;
 
         return;
-    } else {
-	    terminal_putentryat(c, TERMINAL_STATE.terminal_color, TERMINAL_STATE.terminal_column, TERMINAL_STATE.terminal_row);
-	}
-    
-    if (++TERMINAL_STATE.terminal_column == VGA_WIDTH) {
+    } 
+
+	struct FontSpaceInfo spacing = terminal_putentryat(c, TERMINAL_STATE.terminal_column, TERMINAL_STATE.terminal_row);
+	
+    // 2 here is padding.. need to make that variable
+    TERMINAL_STATE.terminal_column += spacing.width;
+
+    if (TERMINAL_STATE.terminal_column >= videoInfo->framebuffer_width) {
 		TERMINAL_STATE.terminal_column = 0;
-		if (++TERMINAL_STATE.terminal_row == VGA_HEIGHT)
+
+        TERMINAL_STATE.terminal_row += spacing.height + 2;
+
+		if (TERMINAL_STATE.terminal_row >= videoInfo->framebuffer_height)
 			TERMINAL_STATE.terminal_row = 0;
 	}
 }
@@ -65,10 +73,15 @@ void terminal_write(const char* data, size_t size)
  
 void terminal_writestring(const char* data) 
 {
-    uint8_t original = TERMINAL_STATE.terminal_color;
+    struct Color3 original = TERMINAL_STATE.terminal_color;
+    struct Color3 new;
+
+    new.r = 60;
+    new.g = 255;
+    new.b = 60;
 
     terminal_putchar('[');
-    terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+    terminal_setcolor(new);
     terminal_putchar('+');
     terminal_setcolor(original);
     terminal_putchar(']');
@@ -78,9 +91,12 @@ void terminal_writestring(const char* data)
 }
 
 void terminal_error(const char* data) {
-    uint8_t original = TERMINAL_STATE.terminal_color;
-    
-    terminal_setcolor(vga_entry_color(VGA_COLOR_RED, VGA_COLOR_WHITE));
+    struct Color3 original = TERMINAL_STATE.terminal_color;
+    struct Color3 new;
+    new.r = 255;
+    new.g = 50;
+    new.b = 50;
+    terminal_setcolor(new);
 
 	terminal_write(data, strlen(data));
 
