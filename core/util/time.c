@@ -7,8 +7,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void(*TimeEventFunction)();
-
 static float kernel_time = 0.f;
 static const float time_delta = 0.00097f;
 static TimeEventFunction eventConnections[35];
