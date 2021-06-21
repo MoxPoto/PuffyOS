@@ -8,6 +8,7 @@
 #include <interrupts.h>
 #include <pic.h>
 #include <gdt.h>
+#include <vendor/multiboot.h>
 
 // Create our IDT
 __attribute__((aligned(0x10))) 
@@ -119,8 +120,14 @@ void kernel_crash(void) {
 	}
 }
 
-void kernel_main(void) 
+void kernel_main(void)
 {
+	// thank u grub.. for giving me this info
+
+	multiboot_info_t* grubInfo;
+	asm("mov %%ebx, %0" : "=r"(grubInfo) : :"%ebx");
+	// The address of the pointer to the bootloader info is stored in the EBX register
+	
 	disable_interrupts();
 	setupGDT();
 
@@ -137,7 +144,8 @@ void kernel_main(void)
 
 	terminal_writestring(vendor);
 
-	terminal_writestring("Done!\n");
+	
+
 	
 
 	terminal_writestring("Creating IDT..\n");
@@ -166,8 +174,19 @@ void kernel_main(void)
 
 	terminal_writestring("Enabled interrupts!\n");
 
+	uint16_t pixelwidth = grubInfo->framebuffer_bpp / 8;
+	
+	for(unsigned int x = 0; x < grubInfo->framebuffer_width; x++) {
+		for(unsigned int y = 0; y < grubInfo->framebuffer_height; y++) {
+			uint32_t index = (y * grubInfo->framebuffer_pitch + x * pixelwidth);
+
+			unsigned char* pixel = (unsigned char*)grubInfo->framebuffer_addr;
+			pixel[index] = 255;
+			pixel[index + 1] = 255;
+			pixel[index + 2] = 255;
+		}
+	}
 	for(;;) {
 		asm("hlt");
 	}
-
 }

@@ -7,7 +7,7 @@
 .set VIDEO_HEIGHT, 480
 .set BPP_VIDEO, 32
 
-.set FLAGS, ALIGN | MEMINFO
+.set FLAGS, ALIGN | MEMINFO | GIMME_VIDEO
 .set MAGIC, 0x1BADB002
 .set CHECKSUM, -(MAGIC + FLAGS)
 
@@ -118,7 +118,6 @@ isr_stub_table: # Help me
 gdt_flush:
     lgdt [gp]        # Load the GDT with our '_gp' which is a special pointer
 
-    
     jmp $0x08,$flush2   # 0x08 is the offset to our code segment: Far jump!
 flush2:
     mov $0x10, %AX      # 0x10 is the offset in the GDT to our data segment
@@ -154,7 +153,8 @@ _start:
 
 
     mov $stack_top, %esp
-    
+
+
     /* Start kernel */
 
     
