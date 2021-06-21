@@ -22,13 +22,7 @@ void terminal_initialize(void)
 	TERMINAL_STATE.terminal_row = 0;
 	TERMINAL_STATE.terminal_column = 0;
 	TERMINAL_STATE.terminal_color = vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-	TERMINAL_STATE.terminal_buffer = (uint16_t*) 0xB8000;
-	for (size_t y = 0; y < VGA_HEIGHT; y++) {
-		for (size_t x = 0; x < VGA_WIDTH; x++) {
-			const size_t index = y * VGA_WIDTH + x;
-			TERMINAL_STATE.terminal_buffer[index] = vga_entry(' ', TERMINAL_STATE.terminal_color);
-		}
-	}
+
 }
  
 void terminal_setcolor(uint8_t color) 

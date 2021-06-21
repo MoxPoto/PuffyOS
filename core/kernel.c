@@ -9,6 +9,7 @@
 #include <pic.h>
 #include <gdt.h>
 #include <vendor/multiboot.h>
+#include <drivers/video_driver.h>
 
 // Create our IDT
 __attribute__((aligned(0x10))) 
@@ -127,9 +128,11 @@ void kernel_main(void)
 	multiboot_info_t* grubInfo;
 	asm("mov %%ebx, %0" : "=r"(grubInfo) : :"%ebx");
 	// The address of the pointer to the bootloader info is stored in the EBX register
-	
+
 	disable_interrupts();
 	setupGDT();
+
+	video_initialize(grubInfo);
 
 	terminal_initialize();
 	
@@ -173,19 +176,7 @@ void kernel_main(void)
 	enable_interrupts();
 
 	terminal_writestring("Enabled interrupts!\n");
-
-	uint16_t pixelwidth = grubInfo->framebuffer_bpp / 8;
 	
-	for(unsigned int x = 0; x < grubInfo->framebuffer_width; x++) {
-		for(unsigned int y = 0; y < grubInfo->framebuffer_height; y++) {
-			uint32_t index = (y * grubInfo->framebuffer_pitch + x * pixelwidth);
-
-			unsigned char* pixel = (unsigned char*)grubInfo->framebuffer_addr;
-			pixel[index] = 255;
-			pixel[index + 1] = 255;
-			pixel[index + 2] = 255;
-		}
-	}
 	for(;;) {
 		asm("hlt");
 	}
