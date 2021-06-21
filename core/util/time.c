@@ -1,13 +1,19 @@
 #include <time.h>
 #include <ports.h>
 #include <pic.h>
+#include <early_terminal.h>
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
+typedef void(*TimeEventFunction)();
+
 static float kernel_time = 0.f;
 static const float time_delta = 0.00097f;
+static TimeEventFunction eventConnections[35];
+static int eventConSize = 0;
+
 // 1024 hz to seconds, which is approximately the time inbetween IRQ 8 interrupts
 
 void c_time_handle(void) {
@@ -17,9 +23,33 @@ void c_time_handle(void) {
     outportb(0x70, 0x0C);	// select register C
     inportb(0x71);		// just throw away contents
 
+   
+
+    for (int i = 0; i < eventConSize; i++) {
+        TimeEventFunction eventHandler = eventConnections[i];
+
+        (eventHandler)();
+    }
+
     // code up there is from osdev, apparently you need to read from
     // register C in order to have the RTC chip keep propagating
     // interrupts to the kernel
+}
+
+void connect_time_event(TimeEventFunction func) {
+    if ((eventConSize + 1) < 35) {
+        eventConnections[eventConSize++] = func;
+    }
+}
+
+float last_time = 0.f;
+
+void test_handler(void) {
+    if ((kernel_time - last_time) >= 1.f) {
+        last_time = kernel_time;
+
+        terminal_writestring("A second has passed\n");
+    }
 }
 
 void initialize_time(void) {
@@ -27,6 +57,8 @@ void initialize_time(void) {
     char prev = inportb(0x71);	// read the current value of register B
     outportb(0x70, 0x8B);		// set the index again (a read will reset the index to register D)
     outportb(0x71, prev | 0x40);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
+
+    connect_time_event(test_handler);
 }
 
 float get_kernel_time(void) {

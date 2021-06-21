@@ -172,9 +172,11 @@ void kernel_main(void)
 
 	IRQ_clear_mask(1);
 	IRQ_clear_mask(2); // Enable cascade bit to let the 2nd pic run
+	IRQ_clear_mask(8);
+
 	
 	initialize_time();
-	
+
 	idt_init();
 	terminal_writestring("Installed IDT!\n");
 	
