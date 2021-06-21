@@ -10,6 +10,7 @@
 #include <gdt.h>
 #include <vendor/multiboot.h>
 #include <drivers/video_driver.h>
+#include <time.h>
 
 // Create our IDT
 __attribute__((aligned(0x10))) 
@@ -92,6 +93,7 @@ void detectVendor(char* vendor) {
 // as the name suggests, look for a void* keyboard assembly wrapper
 extern void keyboard_asm_wrap(void);
 extern void common_asm_wrap(void);
+extern void time_asm_wrap(void);
 
 void c_key_handle(void) {
 	terminal_writestring("Detected a key press!!\n");
@@ -161,6 +163,7 @@ void kernel_main(void)
 	terminal_writestring("Installing key handler and bitmasking IRQ lines..\n");
 	
 	idt_set_descriptor(33, keyboard_asm_wrap, 0x8E);
+	idt_set_descriptor(40, time_asm_wrap, 0x8E);
 	idt_set_descriptor(32, common_asm_wrap, 0x8E);
 
 	for (int i = 0; i < 16; i++) {
@@ -168,6 +171,9 @@ void kernel_main(void)
 	}
 
 	IRQ_clear_mask(1);
+	IRQ_clear_mask(2); // Enable cascade bit to let the 2nd pic run
+	
+	initialize_time();
 	
 	idt_init();
 	terminal_writestring("Installed IDT!\n");
