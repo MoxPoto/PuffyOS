@@ -32,6 +32,16 @@ void video_initialize(multiboot_info_t* grubInfo) {
 	}
 }
 
+void video_displayCrash(void) {
+    for(unsigned int x = 0; x < videoInfo->framebuffer_width; x++) {
+		for(unsigned int y = 0; y < videoInfo->framebuffer_height; y++) {
+			uint32_t index = getPixelLocation(x, y);
+
+			setPixel(41, 226, 230, index);
+		}
+	}
+}
+
 struct FontSpaceInfo video_drawchar(uint32_t oX, uint32_t oY, struct Color3 col, char target) {
     struct FontSpaceInfo spacing;
 

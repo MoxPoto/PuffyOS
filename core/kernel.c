@@ -1,15 +1,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #include <early_terminal.h>
 #include <string_util.h>
+
 #include <cpuid.h>
+
 #include <kernel.h>
 #include <interrupts.h>
 #include <pic.h>
 #include <gdt.h>
+
 #include <vendor/multiboot.h>
+
 #include <drivers/video_driver.h>
+#include <drivers/keyboard_driver.h>
+
 #include <time.h>
 #include <memory_util.h>
 
@@ -96,17 +103,6 @@ extern void keyboard_asm_wrap(void);
 extern void common_asm_wrap(void);
 extern void time_asm_wrap(void);
 
-void c_key_handle(void) {
-	terminal_writestring("Detected a key press!!\n");
-	unsigned char scan_code = inportb(0x60);
-	// fun fact: the keyboard doesnt continue sending any more interrupts until you read the scan
-	// code
-	
-	PIC_sendEOI(1);
-	
-	return;
-}
-
 void kernel_crash(void) {
 	int stopCode = 1337;
 	asm("mov %%eax, %0" : "=r"(stopCode) : :"%eax");
@@ -114,6 +110,12 @@ void kernel_crash(void) {
 
 	char stopCodeStr[50];
 	itoa(stopCode, stopCodeStr, 10);
+
+	video_displayCrash();
+
+	TERMINAL_STATE.terminal_column = 0;
+	TERMINAL_STATE.terminal_row = 0;
+
 	terminal_error("\nKERNEL PANIC!\n");
 	terminal_error("STOP CODE IS: ");
 	terminal_error(stopCodeStr);
@@ -159,6 +161,7 @@ void kernel_main(void)
 	
 		
 	initialize_pic();
+	initialize_keyboard();
 
 	terminal_writestring("Installing key handler and bitmasking IRQ lines..\n");
 	
@@ -185,6 +188,8 @@ void kernel_main(void)
 
 	terminal_writestring("Enabled interrupts!\n");
 	
+	
+
 	for(;;) {
 		asm("hlt");
 	}

@@ -10,11 +10,20 @@ enum KeyFlags {
 };
 
 struct Key {
-    char ascii;
-    uint8_t flags;
+    unsigned char ascii;
+    bool pressed;
 };
 
-Key keyboard_keys[128];
+struct KeyInstruction {
+    uint8_t scancode;
+    unsigned char ascii;
+    bool pressed;
+};
+
+extern struct Key* keyboard_array;
+extern struct KeyInstruction* keyboard_instructions;
 extern void c_key_handle(void);
+
+extern void initialize_keyboard(void);
 
 #endif

@@ -8,6 +8,7 @@
 
 extern multiboot_info_t* videoInfo;
 extern void video_initialize(multiboot_info_t* grubInfo);
+extern void video_displayCrash(void);
 
 struct FontSpaceInfo {
     int width;
